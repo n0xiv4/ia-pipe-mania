@@ -23,10 +23,10 @@ def parse_instance():
 	pass
 
 class PipeMania(Problem):
-    def __init__(self, initial_state: Board, goal_state: Board):
+	def __init__(self, initial_state: Board, goal_state: Board):
 		""" O construtor especifica o estado inicial. """
 		# TODO
-  		pass
+		pass
 	def actions(self, state: State):
 		""" Retorna uma lista de ações que podem ser executadas a partir do estado passado como argumento. """
 		# TODO
