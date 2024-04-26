@@ -2,9 +2,9 @@
 # Devem alterar as classes e funções neste ficheiro de acordo com as instruções do enunciado.
 # Além das funções e classes sugeridas, podem acrescentar outras que considerem pertinentes.
 
-# Grupo 00:
-# 00000 Nome1
-# 00000 Nome2
+# Grupo 07:
+# 106192 Filipe Oleacu
+# 106505 Rodrigo Salgueiro
 
 import sys
 from search import (
@@ -43,14 +43,14 @@ class Board:
     def adjacent_vertical_values(self, row: int, col: int) -> (str, str):
         """Devolve os valores imediatamente acima e abaixo,
         respectivamente."""
-        # TODO
-        pass
+        # TODO watch cases -1
+        return (board[row-1][col], board[row+1][col])
 
     def adjacent_horizontal_values(self, row: int, col: int) -> (str, str):
         """Devolve os valores imediatamente à esquerda e à direita,
         respectivamente."""
-        # TODO
-        pass
+        # TODO watch cases -1
+        return (board[row][col-1], board[row][col+1])
 
     @staticmethod
     def parse_instance():
@@ -63,7 +63,19 @@ class Board:
             > from sys import stdin
             > line = stdin.readline().split()
         """
-        # TODO
+        line_input = []
+
+        first_line = sys.stdin.readline().strip().split('\t')
+        line_input.append(first_line)
+
+        board_size = len(first_line)
+        # First line has already been read
+        for _ in range(1, board_size):
+            line = sys.stdin.readline().strip().split('\t')
+            line_input.append(line)
+
+        print(line_input)
+        # TODO: map line_input var to Board instance
         pass
 
     # TODO: outros metodos da classe
@@ -110,4 +122,5 @@ if __name__ == "__main__":
     # Usar uma técnica de procura para resolver a instância,
     # Retirar a solução a partir do nó resultante,
     # Imprimir para o standard output no formato indicado.
+    Board.parse_instance()
     pass
