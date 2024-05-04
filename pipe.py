@@ -17,6 +17,16 @@ from search import (
     recursive_best_first_search,
 )
 
+# SKETCH for STATES
+ACTIONS = {
+    "C": ("E", "D"),
+    "B": ("D", "E"),
+    "E": ("B", "C"),
+    "D": ("C", "B"),
+    "H": ("V", "V"),
+    "V": ("L", "L")
+}
+
 
 class PipeManiaState:
     state_id = 0
@@ -35,22 +45,44 @@ class PipeManiaState:
 class Board:
     """Representação interna de um tabuleiro de PipeMania."""
 
+    def __init__(self, board: list):
+        self.board = board
+        self.size = len(board)
+
+    def inside_board(self, row: int, col: int) -> bool:
+        """Devolve o valor booleano que especifica se a posição
+        dada faz parte do tabuleiro."""
+        return -1 < row < self.size and -1 < col < self.size
+
     def get_value(self, row: int, col: int) -> str:
         """Devolve o valor na respetiva posição do tabuleiro."""
-        # TODO
-        pass
+        if self.inside_board(row, col):
+            return self.board[row][col]
+        return None
 
     def adjacent_vertical_values(self, row: int, col: int) -> (str, str):
         """Devolve os valores imediatamente acima e abaixo,
         respectivamente."""
-        # TODO watch cases -1
-        return (board[row-1][col], board[row+1][col])
+        above_value = None
+        below_value = None
+        if self.inside_board(row+1, col):
+            above_value = self.board[row-1][col]
+        if self.inside_board(row-1, col):
+            below_value = self.board[row+1][col]
+            
+        return (above_value, below_value)
 
     def adjacent_horizontal_values(self, row: int, col: int) -> (str, str):
         """Devolve os valores imediatamente à esquerda e à direita,
         respectivamente."""
-        # TODO watch cases -1
-        return (board[row][col-1], board[row][col+1])
+        left_value = None
+        right_value = None
+        if self.inside_board(row, col-1):
+            left_value = self.board[row][col-1]
+        if self.inside_board(row, col+1):
+            right_value = self.board[row][col+1]
+            
+        return (left_value, right_value)
 
     @staticmethod
     def parse_instance():
@@ -74,9 +106,7 @@ class Board:
             line = sys.stdin.readline().strip().split('\t')
             line_input.append(line)
 
-        print(line_input)
-        # TODO: map line_input var to Board instance
-        pass
+        return Board(line_input)
 
     # TODO: outros metodos da classe
 
@@ -84,13 +114,17 @@ class Board:
 class PipeMania(Problem):
     def __init__(self, board: Board):
         """O construtor especifica o estado inicial."""
-        # TODO
-        pass
+        # TODO: add more attributes (if needed)
+        self.board = board
 
     def actions(self, state: PipeManiaState):
         """Retorna uma lista de ações que podem ser executadas a
         partir do estado passado como argumento."""
-        # TODO
+        # Depends on second letter ONLY, which specifies the orientation.
+        # There are always two possible moves: counterclockwise and clockwise.
+        # L piece works differently (naturally).
+        
+        # Não percebo o que é suposto isto retornar ?
         pass
 
     def result(self, state: PipeManiaState, action):
@@ -122,5 +156,7 @@ if __name__ == "__main__":
     # Usar uma técnica de procura para resolver a instância,
     # Retirar a solução a partir do nó resultante,
     # Imprimir para o standard output no formato indicado.
-    Board.parse_instance()
+    board = Board.parse_instance()
+    print(board.adjacent_vertical_values(0, 0))
+    print(board.adjacent_vertical_values(1, 0))
     pass
