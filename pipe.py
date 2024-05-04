@@ -124,8 +124,21 @@ class PipeMania(Problem):
         # There are always two possible moves: counterclockwise and clockwise.
         # L piece works differently (naturally).
         
-        # Não percebo o que é suposto isto retornar ?
-        pass
+        outer_bounds = state.board.size
+        actions = []
+        for row in range(0, outer_bounds):
+            for col in range(0, outer_bounds):
+                piece_actions = []
+                if True:
+                    piece_actions.append((row, col, False))
+                if True:
+                    piece_actions.append((row, col, True))
+                    
+                actions.append(piece_actions)
+                
+                # print(board.get_value(row, col) + "\t", end="")
+            # print("\n", end="")
+        return actions
 
     def result(self, state: PipeManiaState, action):
         """Retorna o estado resultante de executar a 'action' sobre
@@ -157,6 +170,7 @@ if __name__ == "__main__":
     # Retirar a solução a partir do nó resultante,
     # Imprimir para o standard output no formato indicado.
     board = Board.parse_instance()
-    print(board.adjacent_vertical_values(0, 0))
-    print(board.adjacent_vertical_values(1, 0))
+    problem = PipeMania(board)
+    initial_state = PipeManiaState(board)
+    print(problem.actions(initial_state))
     pass
