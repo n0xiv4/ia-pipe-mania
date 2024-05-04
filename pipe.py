@@ -65,9 +65,9 @@ class Board:
         respectivamente."""
         above_value = None
         below_value = None
-        if self.inside_board(row+1, col):
-            above_value = self.board[row-1][col]
         if self.inside_board(row-1, col):
+            above_value = self.board[row-1][col]
+        if self.inside_board(row+1, col):
             below_value = self.board[row+1][col]
             
         return (above_value, below_value)
