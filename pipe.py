@@ -27,6 +27,25 @@ ACTIONS = {
     "V": ("L", "L")
 }
 
+POSITIONS = ("UP", "RIGHT", "DOWN", "LEFT")
+
+CONNECTIONS = {
+    "FC": (True, False, False, False),
+    "FD": (False, True, False, False),
+    "FB": (False, False, True, False),
+    "FE": (False, False, False, True),
+    "BC": (True, True, False, True),
+    "BD": (True, True, True, False),
+    "BB": (False, True, True, True),
+    "BE": (True, False, True, True),
+    "VC": (True, False, False, True),
+    "VD": (True, True, False, False),
+    "VB": (False, True, True, False),
+    "VE": (False, False, True, True),
+    "LH": (False, True, False, True),
+    "LV": (True, False, True, False)
+}
+
 
 class PipeManiaState:
     state_id = 0
@@ -83,6 +102,23 @@ class Board:
             right_value = self.board[row][col+1]
             
         return (left_value, right_value)
+    
+    def connected(self, row: int, col: int) -> bool:
+        """
+        Verifica se uma peça está conectada a todas as peças à sua volta.
+        """
+        piece = self.board[row][col]
+        vertical = self.adjacent_vertical_values(row, col)
+        horizontal = self.adjacent_horizontal_values(row, col)
+        surroundings = (vertical[0], horizontal[1], vertical[1], horizontal[0])
+        # Checks surrondings of the current piece
+        for side, p in enumerate(surroundings):
+            # If the current piece has a connection on this side, and the other 
+            # piece doesn't, it's not connected
+            # (side-2 means the opposite side)
+            if CONNECTIONS[piece][side] and (not p or not CONNECTIONS[p][side-2]):
+                return False
+        return True
 
     @staticmethod
     def parse_instance():
@@ -120,33 +156,27 @@ class PipeMania(Problem):
     def actions(self, state: PipeManiaState):
         """Retorna uma lista de ações que podem ser executadas a
         partir do estado passado como argumento."""
-        # Depends on second letter ONLY, which specifies the orientation.
-        # There are always two possible moves: counterclockwise and clockwise.
-        # L piece works differently (naturally).
         
-        outer_bounds = state.board.size
-        actions = []
-        for row in range(0, outer_bounds):
-            for col in range(0, outer_bounds):
-                piece_actions = []
-                if True:
-                    piece_actions.append((row, col, False))
-                if True:
-                    piece_actions.append((row, col, True))
-                    
-                actions.append(piece_actions)
-                
-                # print(board.get_value(row, col) + "\t", end="")
-            # print("\n", end="")
-        return actions
+        # Novo formato actions TODO: (row, col, side)
+        # por exemplo: a peça em (2, 1) é uma "BB". (2, 1, "D") transforma "BB" em "BD".
+        
+        return
 
-    def result(self, state: PipeManiaState, action):
+    def result(self, state: PipeManiaState, action: tuple) -> PipeManiaState:
         """Retorna o estado resultante de executar a 'action' sobre
         'state' passado como argumento. A ação a executar deve ser uma
         das presentes na lista obtida pela execução de
         self.actions(state)."""
-        # TODO
-        pass
+        # TODO deep copy!
+        new_board = state.board
+        # Replaces the second letter in the piece of the
+        # action coordinate, to the desired orientation.
+        # TODO adicionar função para mudar orientação de peça na coordenada (x, y)
+        # Isto está uma lixeira por agora, depois arruma-se
+        old_piece = new_board.board[action[0]][action[1]]
+        new_piece = old_piece[0] + action[2]
+        new_board.board[action[0]][action[1]] = new_piece
+        return PipeManiaState(new_board)
 
     def goal_test(self, state: PipeManiaState):
         """Retorna True se e só se o estado passado como argumento é
@@ -172,5 +202,13 @@ if __name__ == "__main__":
     board = Board.parse_instance()
     problem = PipeMania(board)
     initial_state = PipeManiaState(board)
-    print(problem.actions(initial_state))
+    # TESTE:
+    # FE	VD
+    # VE	BC
+    # --
+    # FE não está conectado. Mas rodando FE para FD e VD para VE.. tem que estar.
+    print(initial_state.board.connected(0, 0))
+    st1 = problem.result(initial_state, (0, 0, "D"))
+    st2 = problem.result(st1, (0, 1, "E"))   
+    print(st2.board.connected(0, 0))
     pass
