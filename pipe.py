@@ -6,6 +6,10 @@
 # 106192 Filipe Oleacu
 # 106505 Rodrigo Salgueiro
 
+# TODO: REMOVER IMPORT SUBPROCESS NO FIM!!!
+import subprocess
+#
+
 import sys
 from search import (
     Problem,
@@ -119,6 +123,21 @@ class Board:
             if CONNECTIONS[piece][side] and (not p or not CONNECTIONS[p][side-2]):
                 return False
         return True
+    
+    def debug(self):
+        """
+        Imprime o board para fins de debugging.
+        """
+        for r in range(0, self.size):
+            for c in range(0, self.size):
+                print(self.board[r][c], end="\t")
+            print()
+            
+    def show(self):
+        """
+        Mostra o board num formato de imagem.
+        """
+        subprocess.run(['python3', 'visualizer.py', str(self.board)])
 
     @staticmethod
     def parse_instance():
@@ -202,13 +221,8 @@ if __name__ == "__main__":
     board = Board.parse_instance()
     problem = PipeMania(board)
     initial_state = PipeManiaState(board)
-    # TESTE:
-    # FE	VD
-    # VE	BC
-    # --
-    # FE não está conectado. Mas rodando FE para FD e VD para VE.. tem que estar.
-    print(initial_state.board.connected(0, 0))
-    st1 = problem.result(initial_state, (0, 0, "D"))
-    st2 = problem.result(st1, (0, 1, "E"))   
-    print(st2.board.connected(0, 0))
+    
+    # TESTES
+    initial_state.board.debug()
+    initial_state.board.show()
     pass
