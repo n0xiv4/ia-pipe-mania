@@ -11,6 +11,7 @@ import subprocess
 #
 
 import sys
+import copy
 from search import (
     Problem,
     Node,
@@ -21,17 +22,14 @@ from search import (
     recursive_best_first_search,
 )
 
-# SKETCH for STATES
-ACTIONS = {
-    "C": ("E", "D"),
-    "B": ("D", "E"),
-    "E": ("B", "C"),
-    "D": ("C", "B"),
-    "H": ("V", "V"),
-    "V": ("L", "L")
-}
+UP = "C"
+RIGHT = "D"
+DOWN = "B"
+LEFT = "E"
+HRZ = "H"
+VRT = "V"
 
-POSITIONS = ("UP", "RIGHT", "DOWN", "LEFT")
+POSITIONS = (UP, RIGHT, DOWN, LEFT)
 
 CONNECTIONS = {
     "FC": (True, False, False, False),
@@ -49,6 +47,9 @@ CONNECTIONS = {
     "LH": (False, True, False, True),
     "LV": (True, False, True, False)
 }
+
+def indices(lst, item):
+    return [i for i, x in enumerate(lst) if x == item]
 
 
 class PipeManiaState:
@@ -124,6 +125,19 @@ class Board:
                 return False
         return True
     
+    def rotate(self, action):
+        """
+        Roda uma qualquer peça para a orientação pedida,
+        retornando posteriormente um novo Board.
+        """
+        row, col, orientation = action[0], action[1], action[2]
+        new_board = copy.deepcopy(self.board)
+        old_piece = new_board[row][col]
+        new_piece = old_piece[0] + orientation
+        new_board[row][col] = new_piece
+
+        return Board(new_board)
+    
     def debug(self):
         """
         Imprime o board para fins de debugging.
@@ -176,26 +190,56 @@ class PipeMania(Problem):
         """Retorna uma lista de ações que podem ser executadas a
         partir do estado passado como argumento."""
         
-        # Novo formato actions TODO: (row, col, side)
-        # por exemplo: a peça em (2, 1) é uma "BB". (2, 1, "D") transforma "BB" em "BD".
+        actions = []
+
+        board = state.board
+        board_size = state.board.size
+        for row in range(0, board_size):
+            for col in range(0, board_size):
+                print(row, col)
+                # DESCOBRIR FRONTEIRA DE CADA PEÇA, ANTES DE TUDO...
+                piece = board.get_value(row, col)
+                upb, downb = board.adjacent_vertical_values(row, col)
+                leftb, rightb = board.adjacent_horizontal_values(row, col)
+                border = (upb, rightb, downb, leftb)
+
+                # Diferentes hipóteses de peças nessa posição
+                if piece[0] != "L":
+                    positions = POSITIONS
+                else:
+                    positions = ["H", "V"]
+
+                for position in positions:
+                    print((row, col, piece, position))
+                    if position == piece[1]:
+                        # ignore own position
+                        continue
+
+                    status = True
+                    new_piece = piece[0] + position
+                    if None in border:
+                        for i in indices(border, None):
+                            if CONNECTIONS[new_piece][i] and (row, col, position) not in actions:
+                                status = False
+
+                    if status:
+                        # Case if there are two F's next to each other
+                        if new_piece[0] == "F":
+                            opposite_piece = border[POSITIONS.index(new_piece[1])]
+                            if opposite_piece and opposite_piece[0] == "F":
+                                continue
+                        
+                        actions.append((row, col, position))
         
-        return
+        return actions
 
     def result(self, state: PipeManiaState, action: tuple) -> PipeManiaState:
         """Retorna o estado resultante de executar a 'action' sobre
         'state' passado como argumento. A ação a executar deve ser uma
         das presentes na lista obtida pela execução de
         self.actions(state)."""
-        # TODO deep copy!
-        new_board = state.board
-        # Replaces the second letter in the piece of the
-        # action coordinate, to the desired orientation.
-        # TODO adicionar função para mudar orientação de peça na coordenada (x, y)
-        # Isto está uma lixeira por agora, depois arruma-se
-        old_piece = new_board.board[action[0]][action[1]]
-        new_piece = old_piece[0] + action[2]
-        new_board.board[action[0]][action[1]] = new_piece
-        return PipeManiaState(new_board)
+
+        return PipeManiaState(state.board.rotate(action))
 
     def goal_test(self, state: PipeManiaState):
         """Retorna True se e só se o estado passado como argumento é
@@ -225,4 +269,5 @@ if __name__ == "__main__":
     # TESTES
     initial_state.board.debug()
     initial_state.board.show()
+    print(problem.actions(initial_state))
     pass
