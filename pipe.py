@@ -185,6 +185,7 @@ class PipeMania(Problem):
         """O construtor especifica o estado inicial."""
         # TODO: add more attributes (if needed)
         self.board = board
+        self.initial = PipeManiaState(board)
 
     def actions(self, state: PipeManiaState):
         """Retorna uma lista de ações que podem ser executadas a
@@ -196,7 +197,6 @@ class PipeMania(Problem):
         board_size = state.board.size
         for row in range(0, board_size):
             for col in range(0, board_size):
-                print(row, col)
                 # DESCOBRIR FRONTEIRA DE CADA PEÇA, ANTES DE TUDO...
                 piece = board.get_value(row, col)
                 upb, downb = board.adjacent_vertical_values(row, col)
@@ -210,7 +210,6 @@ class PipeMania(Problem):
                     positions = ["H", "V"]
 
                 for position in positions:
-                    print((row, col, piece, position))
                     if position == piece[1]:
                         # ignore own position
                         continue
@@ -246,7 +245,13 @@ class PipeMania(Problem):
         um estado objetivo. Deve verificar se todas as posições do tabuleiro
         estão preenchidas de acordo com as regras do problema."""
         # TODO
-        pass
+        size = state.board.size
+        for row in range(0, size):
+            for col in range(0, size):
+                if not state.board.connected(row, col):
+                    print("NOT CONNECTED ->" + "(" + str(row) + "," + str(col) + ")" + state.board.get_value(row, col))
+                    return False
+        return True
 
     def h(self, node: Node):
         """Função heuristica utilizada para a procura A*."""
@@ -264,10 +269,11 @@ if __name__ == "__main__":
     # Imprimir para o standard output no formato indicado.
     board = Board.parse_instance()
     problem = PipeMania(board)
-    initial_state = PipeManiaState(board)
     
     # TESTES
-    initial_state.board.debug()
-    initial_state.board.show()
-    print(problem.actions(initial_state))
+    problem.initial.board.show()
+    # print(problem.goal_test(problem.initial))
+    print(problem.actions(problem.initial))
+    # hey = depth_first_tree_search(problem)
+    # hey.state.board.show()
     pass
