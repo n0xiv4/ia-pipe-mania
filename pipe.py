@@ -183,9 +183,29 @@ class Board:
 class PipeMania(Problem):
     def __init__(self, board: Board):
         """O construtor especifica o estado inicial."""
-        # TODO: add more attributes (if needed)
         self.board = board
         self.initial = PipeManiaState(board)
+        self.initial_relax()
+
+    def initial_relax(self):
+        """Relaxa o problema a partir de ações únicas."""
+        state = self.initial
+        initial_actions = self.actions(state)
+        
+        for index, action in enumerate(initial_actions):
+            current_pos = (initial_actions[index][0], initial_actions[index][1])
+            if index != 0:
+                last_pos = (initial_actions[index-1][0], initial_actions[index-1][1])
+            else:
+                last_pos = None
+
+            if index != len(initial_actions) - 1:
+                next_pos = (initial_actions[index+1][0], initial_actions[index+1][1])
+            else:
+                next_pos = None
+
+            if last_pos != current_pos and current_pos != next_pos:
+                self.initial = self.result(self.initial, action)
 
     def actions(self, state: PipeManiaState):
         """Retorna uma lista de ações que podem ser executadas a
@@ -226,6 +246,13 @@ class PipeMania(Problem):
                         if new_piece[0] == "F":
                             opposite_piece = border[POSITIONS.index(new_piece[1])]
                             if opposite_piece and opposite_piece[0] == "F":
+                                continue
+                        
+                        # Case of O- -- -Os
+                        if new_piece[0] == "L":
+                            if new_piece[1] == "H" and leftb[0] == "F" and upb[0] == "F":
+                                continue
+                            if new_piece[1] == "V" and upb[0] == "F" and downb[0] == "F":
                                 continue
                         
                         actions.append((row, col, position))
